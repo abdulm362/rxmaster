@@ -1382,25 +1382,157 @@ const LS_PROG='rxmaster_prog_v2',LS_HIST='rxmaster_hist';
 // 3) Paste your project values below. The anon key is safe to expose when RLS is enabled.
 const SUPABASE_URL = 'https://detxiuwoyaanjmosuzsl.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_ANqgDLvZLEMsVMFO0oyA6A_zegd6Bfl';
+const CLOUD_TABLE = 'rxmaster_user_data';
 let supabaseClient=null,currentUser=null,cloudReady=false,cloudSaveTimer=null,cloudIsLoading=false;
-function isSupabaseConfigured(){return SUPABASE_URL.startsWith('https://')&&SUPABASE_ANON_KEY.length>40&&window.supabase;}
-function initSupabase(){if(!isSupabaseConfigured()){updateAuthUI();return;}supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);supabaseClient.auth.getSession().then(({data})=>handleAuthSession(data.session,true));supabaseClient.auth.onAuthStateChange((_event,session)=>handleAuthSession(session,true));}
-async function handleAuthSession(session,shouldLoad){currentUser=session?.user||null;cloudReady=!!currentUser;updateAuthUI();if(currentUser&&shouldLoad)await loadCloudData(true);}
-function save(){try{localStorage.setItem(LS_PROG,JSON.stringify(drugProgress));}catch(e){}queueCloudSave();}
+
+function isSupabaseConfigured(){
+  return SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.length > 40 && !!window.supabase;
+}
+
+function initSupabase(){
+  if(!isSupabaseConfigured()){
+    console.warn('[RxMaster Sync] Supabase is not configured or library failed to load.');
+    updateAuthUI();
+    return;
+  }
+  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
+    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}
+  });
+  window.supabaseClient=supabaseClient;
+  window.rxmasterSync={
+    status:()=>({configured:isSupabaseConfigured(),cloudReady,currentUser,table:CLOUD_TABLE,url:SUPABASE_URL}),
+    getSession:()=>supabaseClient.auth.getSession(),
+    save:()=>saveCloudData(true),
+    load:()=>loadCloudData(false),
+    test:()=>testCloudWrite()
+  };
+  supabaseClient.auth.getSession().then(({data,error})=>{
+    if(error) console.error('[RxMaster Sync] getSession error:',error);
+    return handleAuthSession(data?.session,true);
+  });
+  supabaseClient.auth.onAuthStateChange((_event,session)=>{
+    console.log('[RxMaster Sync] auth event:',_event,session?.user?.email||null);
+    handleAuthSession(session,true);
+  });
+}
+
+async function handleAuthSession(session,shouldLoad){
+  currentUser=session?.user||null;
+  cloudReady=!!currentUser;
+  updateAuthUI();
+  if(currentUser&&shouldLoad)await loadCloudData(true);
+}
+
+function save(){
+  try{localStorage.setItem(LS_PROG,JSON.stringify(drugProgress));}catch(e){}
+  queueCloudSave();
+}
 function loadSave(){try{const d=localStorage.getItem(LS_PROG);if(d)drugProgress=JSON.parse(d);}catch(e){}}
-function saveHist(){try{localStorage.setItem(LS_HIST,JSON.stringify(sessionHistory));}catch(e){}queueCloudSave();}
+function saveHist(){
+  try{localStorage.setItem(LS_HIST,JSON.stringify(sessionHistory));}catch(e){}
+  queueCloudSave();
+}
 function loadHist(){try{const d=localStorage.getItem(LS_HIST);if(d)sessionHistory=JSON.parse(d);}catch(e){}}
 function clearProgress(){if(!confirm('Clear all saved progress?'))return;drugProgress={};sessionHistory=[];save();saveHist();updateProgress();buildSel();buildHist();queueCloudSave(true);}
-function queueCloudSave(immediate=false){if(!cloudReady||cloudIsLoading)return;clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(saveCloudData,immediate?0:900);}
-async function saveCloudData(){if(!cloudReady||!supabaseClient||!currentUser)return;const payload={user_id:currentUser.id,progress:drugProgress||{},history:sessionHistory||[],lists:customLists||{},notes:notesData||{},updated_at:new Date().toISOString()};const {error}=await supabaseClient.from('rxmaster_user_data').upsert(payload,{onConflict:'user_id'});if(error)setAuthMessage('Cloud save failed: '+error.message,'bad');else updateAuthUI('Synced');}
-async function loadCloudData(mergeLocal=true){if(!cloudReady||!supabaseClient||!currentUser)return;cloudIsLoading=true;const {data,error}=await supabaseClient.from('rxmaster_user_data').select('progress,history,lists,notes,updated_at').eq('user_id',currentUser.id).maybeSingle();if(error){setAuthMessage('Cloud load failed: '+error.message,'bad');cloudIsLoading=false;return;}if(data){drugProgress=mergeLocal?{...(data.progress||{}),...(drugProgress||{})}:(data.progress||{});sessionHistory=mergeLocal?[...(data.history||[]),...(sessionHistory||[])].slice(0,50):(data.history||[]);customLists=mergeLocal?{...(data.lists||{}),...(customLists||{})}:(data.lists||{});notesData=mergeLocal?{...(data.notes||{}),...(notesData||{})}:(data.notes||{});try{localStorage.setItem(LS_PROG,JSON.stringify(drugProgress));localStorage.setItem(LS_HIST,JSON.stringify(sessionHistory));localStorage.setItem(LS_LISTS,JSON.stringify(customLists));localStorage.setItem(LS_NOTES,JSON.stringify(notesData));}catch(e){}updateProgress();buildSel();buildHist();renderSavedLists();}cloudIsLoading=false;await saveCloudData();}
+
+function queueCloudSave(immediate=false){
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer=setTimeout(()=>saveCloudData(false),immediate?0:900);
+}
+
+async function getFreshSession(){
+  if(!supabaseClient) return null;
+  const {data,error}=await supabaseClient.auth.getSession();
+  if(error){console.error('[RxMaster Sync] session error:',error);return null;}
+  if(data?.session?.user){
+    currentUser=data.session.user;
+    cloudReady=true;
+  }
+  return data?.session||null;
+}
+
+function currentCloudPayload(user){
+  return {
+    user_id:user.id,
+    progress:drugProgress||{},
+    history:sessionHistory||[],
+    lists:(typeof customLists!=='undefined'&&customLists)?customLists:{},
+    notes:(typeof notesData!=='undefined'&&notesData)?notesData:{},
+    updated_at:new Date().toISOString()
+  };
+}
+
+async function saveCloudData(showMessage=true){
+  if(!supabaseClient){
+    console.error('[RxMaster Sync] Supabase client is missing.');
+    if(showMessage)setAuthMessage('Cloud save failed: Supabase client missing.','bad');
+    return {ok:false,reason:'missing_client'};
+  }
+  if(cloudIsLoading) return {ok:false,reason:'loading'};
+  const session=await getFreshSession();
+  if(!session?.user){
+    updateAuthUI();
+    console.warn('[RxMaster Sync] Not signed in. Saving locally only.');
+    if(showMessage)setAuthMessage('Not signed in. Progress saved locally only.','bad');
+    return {ok:false,reason:'not_signed_in'};
+  }
+  const payload=currentCloudPayload(session.user);
+  console.log('[RxMaster Sync] Saving to Supabase:',CLOUD_TABLE,payload);
+  const {data,error}=await supabaseClient
+    .from(CLOUD_TABLE)
+    .upsert(payload,{onConflict:'user_id'})
+    .select()
+    .single();
+  if(error){
+    console.error('[RxMaster Sync] Cloud save failed:',error);
+    if(showMessage)setAuthMessage('Cloud save failed: '+error.message,'bad');
+    updateAuthUI('Save failed');
+    return {ok:false,error,payload};
+  }
+  if(showMessage)setAuthMessage('Cloud save successful.','ok');
+  updateAuthUI('Synced');
+  return {ok:true,data,payload};
+}
+
+async function loadCloudData(mergeLocal=true){
+  if(!supabaseClient)return;
+  const session=await getFreshSession();
+  if(!session?.user)return;
+  cloudIsLoading=true;
+  const {data,error}=await supabaseClient.from(CLOUD_TABLE).select('progress,history,lists,notes,updated_at').eq('user_id',session.user.id).maybeSingle();
+  if(error){
+    console.error('[RxMaster Sync] Cloud load failed:',error);
+    setAuthMessage('Cloud load failed: '+error.message,'bad');
+    cloudIsLoading=false;
+    return {ok:false,error};
+  }
+  if(data){
+    drugProgress=mergeLocal?{...(data.progress||{}),...(drugProgress||{})}:(data.progress||{});
+    sessionHistory=mergeLocal?[...(data.history||[]),...(sessionHistory||[])].slice(0,50):(data.history||[]);
+    if(typeof customLists!=='undefined') customLists=mergeLocal?{...(data.lists||{}),...(customLists||{})}:(data.lists||{});
+    if(typeof notesData!=='undefined') notesData=mergeLocal?{...(data.notes||{}),...(notesData||{})}:(data.notes||{});
+    try{localStorage.setItem(LS_PROG,JSON.stringify(drugProgress));localStorage.setItem(LS_HIST,JSON.stringify(sessionHistory));if(typeof LS_LISTS!=='undefined')localStorage.setItem(LS_LISTS,JSON.stringify(customLists));if(typeof LS_NOTES!=='undefined')localStorage.setItem(LS_NOTES,JSON.stringify(notesData));}catch(e){}
+    updateProgress();buildSel();buildHist();if(typeof renderSavedLists==='function')renderSavedLists();
+    updateAuthUI('Synced');
+  }
+  cloudIsLoading=false;
+  await saveCloudData(false);
+  return {ok:true,data};
+}
+
+async function testCloudWrite(){
+  const result=await saveCloudData(true);
+  console.log('[RxMaster Sync] Manual cloud save result:',result);
+  return result;
+}
+
 function updateAuthUI(statusText){const dot=document.getElementById('auth-dot'),email=document.getElementById('auth-email'),btn=document.getElementById('auth-main-btn'),signout=document.getElementById('auth-signout-btn');if(!dot||!email||!btn)return;if(!isSupabaseConfigured()){dot.className='auth-dot warn';email.textContent='Setup needed';btn.textContent='Setup';if(signout)signout.style.display='none';return;}if(currentUser){dot.className='auth-dot online';email.textContent=statusText||currentUser.email||'Signed in';btn.textContent='Account';if(signout)signout.style.display='';}else{dot.className='auth-dot';email.textContent='Local only';btn.textContent='Sign in';if(signout)signout.style.display='none';}}
 function openAuthModal(){document.getElementById('auth-overlay').classList.add('open');updateAuthUI();if(!isSupabaseConfigured())setAuthMessage('Paste your Supabase URL and anon key in the config section of this HTML file first.','bad');else setAuthMessage(currentUser?'Signed in as '+currentUser.email:'','ok');}
 function closeAuthModal(){document.getElementById('auth-overlay').classList.remove('open');}
 function authClickOutside(e){if(e.target.id==='auth-overlay')closeAuthModal();}
 function setAuthMessage(msg,type=''){const el=document.getElementById('auth-message');if(!el)return;el.textContent=msg;el.className='auth-message '+type;}
-async function signUpWithEmail(){if(!supabaseClient)return setAuthMessage('Supabase is not configured yet.','bad');const email=document.getElementById('auth-email-input').value.trim(),password=document.getElementById('auth-password-input').value;const {error}=await supabaseClient.auth.signUp({email,password});if(error)setAuthMessage(error.message,'bad');else setAuthMessage('Account created. Check your email if confirmation is enabled, then sign in.','ok');}
-async function signInWithEmail(){if(!supabaseClient)return setAuthMessage('Supabase is not configured yet.','bad');const email=document.getElementById('auth-email-input').value.trim(),password=document.getElementById('auth-password-input').value;const {error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)setAuthMessage(error.message,'bad');else{setAuthMessage('Signed in. Syncing progress now...','ok');setTimeout(closeAuthModal,800);}}
+async function signUpWithEmail(){if(!supabaseClient)return setAuthMessage('Supabase is not configured yet.','bad');const email=document.getElementById('auth-email-input').value.trim(),password=document.getElementById('auth-password-input').value;const {data,error}=await supabaseClient.auth.signUp({email,password});if(error)setAuthMessage(error.message,'bad');else{setAuthMessage(data?.session?'Account created and signed in. Syncing now.':'Account created. Check your email if confirmation is enabled, then sign in.','ok');if(data?.session){await handleAuthSession(data.session,true);await saveCloudData(false);setTimeout(closeAuthModal,800);}}}
+async function signInWithEmail(){if(!supabaseClient)return setAuthMessage('Supabase is not configured yet.','bad');const email=document.getElementById('auth-email-input').value.trim(),password=document.getElementById('auth-password-input').value;const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)setAuthMessage(error.message,'bad');else{setAuthMessage('Signed in. Syncing progress now...','ok');await handleAuthSession(data.session,true);await saveCloudData(false);setTimeout(closeAuthModal,800);}}
 async function signOutUser(){if(supabaseClient)await supabaseClient.auth.signOut();currentUser=null;cloudReady=false;updateAuthUI();setAuthMessage('Signed out. Your local progress is still saved on this device.','ok');}
 
 function recordResult(d,ok){
