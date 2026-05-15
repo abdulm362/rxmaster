@@ -714,6 +714,24 @@ header{padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:spa
   }
 }
 
+
+
+/* ── PROFILE PAGE + PASSWORD RESET ── */
+.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:1.1rem;box-shadow:var(--shadow-sm);max-width:760px;margin:1rem auto}
+.profile-title{font-size:1.05rem;font-weight:700;margin-bottom:.35rem;color:var(--text)}
+.profile-sub{font-size:.78rem;color:var(--text3);line-height:1.5;margin-bottom:1rem}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1rem}
+.profile-info-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.75rem;min-width:0}
+.profile-info-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);font-family:var(--mono-font);margin-bottom:.25rem}
+.profile-info-value{font-size:.88rem;color:var(--text);word-break:break-word}
+.profile-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem}
+.profile-msg{font-size:.76rem;color:var(--text3);margin-top:.75rem;line-height:1.45;min-height:1.1rem}
+.profile-msg.ok{color:var(--accent)}.profile-msg.bad{color:var(--danger)}
+.profile-reset-box{margin-top:1rem;padding:.9rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px}
+.profile-reset-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.55rem}
+.profile-input{flex:1;min-width:220px;padding:.68rem .75rem;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--ui-font);font-size:.86rem;outline:none}
+.profile-input:focus{border-color:var(--accent2)}
+@media(max-width:640px){.profile-grid{grid-template-columns:1fr}.profile-card{padding:.9rem;margin:.75rem 0}.profile-input{min-width:100%}}
 </style>
 </head>
 <body>
@@ -880,6 +898,7 @@ header{padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:spa
       <button class="tnav-btn" onclick="switchTab('summary',this)">📋 Summary</button>
       <button class="tnav-btn" onclick="switchTab('flashcard',this)">🃏 Flashcards</button>
       <button class="tnav-btn" onclick="switchTab('custom',this)">➕ Custom Drugs</button>
+      <button class="tnav-btn" onclick="switchTab('profile',this)">👤 Profile</button>
     </div>
 
     <!-- ═══ STUDY TAB ═══ -->
@@ -1178,6 +1197,50 @@ header{padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:spa
     </div><!-- end tab-custom -->
 
 
+    <div class="tab-section" id="tab-profile">
+      <div class="profile-card">
+        <div class="profile-title">Profile</div>
+        <div class="profile-sub">Manage your RxMaster account, check cloud sync, and send a password reset email.</div>
+
+        <div class="profile-grid">
+          <div class="profile-info-box">
+            <div class="profile-info-label">Account Email</div>
+            <div class="profile-info-value" id="profile-email">Not signed in</div>
+          </div>
+          <div class="profile-info-box">
+            <div class="profile-info-label">Sync Status</div>
+            <div class="profile-info-value" id="profile-sync-status">Local only</div>
+          </div>
+          <div class="profile-info-box">
+            <div class="profile-info-label">User ID</div>
+            <div class="profile-info-value" id="profile-user-id">—</div>
+          </div>
+          <div class="profile-info-box">
+            <div class="profile-info-label">Last Cloud Save</div>
+            <div class="profile-info-value" id="profile-last-save">—</div>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <button class="btn btn-p" onclick="openAuthModal()">Sign in / Create Account</button>
+          <button class="btn" onclick="rxmasterProfileRefresh()">Refresh Profile</button>
+          <button class="btn" onclick="rxmasterProfileSaveNow()">Sync Now</button>
+          <button class="btn btn-s" onclick="rxmasterProfileSignOut()">Sign Out</button>
+        </div>
+        <div class="profile-msg" id="profile-message"></div>
+
+        <div class="profile-reset-box">
+          <div class="profile-info-label">Password Reset</div>
+          <div class="profile-sub" style="margin-bottom:.3rem">Enter your account email and Supabase will send a password reset link.</div>
+          <div class="profile-reset-row">
+            <input class="profile-input" id="profile-reset-email" type="email" placeholder="Email address" autocomplete="email">
+            <button class="btn btn-p" onclick="rxmasterSendPasswordReset()">Send Reset Email</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- end tab-profile -->
+
+
   </div>
 </div>
 
@@ -1280,6 +1343,7 @@ header{padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:spa
       <button class="btn auth-primary" onclick="signInWithEmail()">Sign in</button>
       <button class="btn" onclick="signUpWithEmail()">Create account</button>
       <button class="btn btn-s" onclick="signOutUser()" id="auth-signout-btn" style="display:none">Sign out</button>
+      <button class="btn btn-s" onclick="rxmasterSendPasswordReset()">Forgot password?</button>
     </div>
     <div class="auth-message" id="auth-message"></div>
   </div>
@@ -3498,11 +3562,13 @@ resetSession();
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tnav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  btn.classList.add('active');
+  const tabEl = document.getElementById('tab-' + tab);
+  if (tabEl) tabEl.classList.add('active');
+  if (btn) btn.classList.add('active');
   if (tab === 'summary') renderSummary();
   if (tab === 'flashcard') initFlashcards();
   if (tab === 'custom') renderCustomDrugs();
+  if (tab === 'profile' && typeof rxmasterProfileRefresh === 'function') rxmasterProfileRefresh();
   syncMobileNav(tab === 'flashcard' ? 'flashcard' : tab);
 }
 
@@ -4294,5 +4360,135 @@ self.addEventListener('fetch', e => {
 </div>
 
 
+
+
+<script>
+/* RxMaster Profile + Password Reset */
+(function(){
+  function profileSetMessage(msg, type){
+    const el = document.getElementById('profile-message');
+    if(!el) return;
+    el.textContent = msg || '';
+    el.className = 'profile-msg' + (type ? ' ' + type : '');
+  }
+
+  function getClient(){
+    if(window.supabaseClient) return window.supabaseClient;
+    if(typeof supabaseClient !== 'undefined') return supabaseClient;
+    return null;
+  }
+
+  async function getCurrentSession(){
+    try{
+      const client = getClient();
+      if(!client || !client.auth) return null;
+      const { data, error } = await client.auth.getSession();
+      if(error) throw error;
+      return data && data.session ? data.session : null;
+    }catch(e){
+      console.error('Profile session check failed:', e);
+      return null;
+    }
+  }
+
+  window.rxmasterProfileRefresh = async function(){
+    const session = await getCurrentSession();
+    const emailEl = document.getElementById('profile-email');
+    const statusEl = document.getElementById('profile-sync-status');
+    const idEl = document.getElementById('profile-user-id');
+    const resetEl = document.getElementById('profile-reset-email');
+    const saveEl = document.getElementById('profile-last-save');
+
+    if(session && session.user){
+      if(emailEl) emailEl.textContent = session.user.email || 'Signed in';
+      if(statusEl) statusEl.textContent = 'Cloud sync active';
+      if(idEl) idEl.textContent = session.user.id || '—';
+      if(resetEl && !resetEl.value) resetEl.value = session.user.email || '';
+    }else{
+      if(emailEl) emailEl.textContent = 'Not signed in';
+      if(statusEl) statusEl.textContent = 'Local only';
+      if(idEl) idEl.textContent = '—';
+    }
+
+    const last = localStorage.getItem('rxmaster_last_cloud_save') || '';
+    if(saveEl) saveEl.textContent = last ? new Date(last).toLocaleString() : '—';
+    return session;
+  };
+
+  window.rxmasterProfileSaveNow = async function(){
+    profileSetMessage('Saving...', '');
+    try{
+      if(typeof saveCloudData === 'function'){
+        await saveCloudData(false);
+      }else if(window.rxmasterSync && typeof window.rxmasterSync.save === 'function'){
+        await window.rxmasterSync.save();
+      }else{
+        throw new Error('Cloud save function was not found.');
+      }
+      localStorage.setItem('rxmaster_last_cloud_save', new Date().toISOString());
+      await window.rxmasterProfileRefresh();
+      profileSetMessage('Progress synced successfully.', 'ok');
+    }catch(e){
+      console.error('Manual sync failed:', e);
+      profileSetMessage('Sync failed. Make sure you are signed in.', 'bad');
+    }
+  };
+
+  window.rxmasterSendPasswordReset = async function(){
+    const profileEmail = document.getElementById('profile-reset-email');
+    const authEmail = document.getElementById('auth-email-input');
+    const email = ((profileEmail && profileEmail.value) || (authEmail && authEmail.value) || '').trim();
+    if(!email){
+      profileSetMessage('Enter your email first.', 'bad');
+      if(typeof setAuthMessage === 'function') setAuthMessage('Enter your email first.', 'bad');
+      return;
+    }
+    const client = getClient();
+    if(!client || !client.auth){
+      profileSetMessage('Supabase is not loaded.', 'bad');
+      if(typeof setAuthMessage === 'function') setAuthMessage('Supabase is not loaded.', 'bad');
+      return;
+    }
+    profileSetMessage('Sending reset email...', '');
+    if(typeof setAuthMessage === 'function') setAuthMessage('Sending reset email...', '');
+    try{
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+      if(error) throw error;
+      profileSetMessage('Password reset email sent. Check your inbox.', 'ok');
+      if(typeof setAuthMessage === 'function') setAuthMessage('Password reset email sent. Check your inbox.', 'ok');
+    }catch(e){
+      console.error('Password reset failed:', e);
+      profileSetMessage(e.message || 'Password reset failed.', 'bad');
+      if(typeof setAuthMessage === 'function') setAuthMessage(e.message || 'Password reset failed.', 'bad');
+    }
+  };
+
+  window.rxmasterProfileSignOut = async function(){
+    try{
+      if(typeof signOutUser === 'function'){
+        await signOutUser();
+      }else{
+        const client = getClient();
+        if(client && client.auth) await client.auth.signOut();
+      }
+      profileSetMessage('Signed out.', 'ok');
+      await window.rxmasterProfileRefresh();
+      if(typeof updateAuthUI === 'function') updateAuthUI();
+    }catch(e){
+      console.error('Sign out failed:', e);
+      profileSetMessage('Sign out failed.', 'bad');
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    window.rxmasterProfileRefresh();
+    const client = getClient();
+    if(client && client.auth && client.auth.onAuthStateChange){
+      client.auth.onAuthStateChange(function(){ setTimeout(window.rxmasterProfileRefresh, 100); });
+    }
+  });
+})();
+</script>
 </body>
 </html>
