@@ -705,6 +705,15 @@ header{padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:spa
 .cd-empty{font-size:.8rem;color:var(--text3);text-align:center;padding:1.3rem;background:var(--surface2);border:1px dashed var(--border2);border-radius:12px;margin-top:1rem}
 @media(max-width:640px){.custom-drug-grid{grid-template-columns:1fr}.custom-drug-panel{padding:.85rem;margin-top:.75rem}.custom-drug-list{grid-template-columns:1fr}}
 
+
+@media(max-width:860px){
+  .sidebar-drawer .list-row{
+    min-height:44px;
+    padding:10px 9px;
+    touch-action:manipulation;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2970,6 +2979,8 @@ function renderSavedLists() {
     const isActive = activeListId === id;
     const row = document.createElement('div');
     row.className = 'list-row' + (isActive ? ' active-list' : '');
+    row.setAttribute('data-list-id', id);
+    row.setAttribute('onclick', `if (!event.target.closest('.list-action-btn')) loadListForStudy('${id}')`);
     row.onclick = (e) => { if (!e.target.closest('.list-action-btn')) loadListForStudy(id); };
     const dot = document.createElement('div');
     dot.className = 'list-dot';
