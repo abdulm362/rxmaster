@@ -3897,7 +3897,7 @@ body.access-reduce-motion *,body.access-reduce-motion *::before,body.access-redu
 <!-- PRINT CHEAT SHEET (hidden, used for printing) -->
 <div id="print-area" style="display:none"></div>
 
-<script src="./index_files/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
 // DATA
@@ -4154,7 +4154,7 @@ const LS_PROG='rxmaster_prog_v2',LS_HIST='rxmaster_hist';
 // create policy "Users can update own RxMaster data" on public.rxmaster_user_data for update using (auth.uid() = user_id);
 // 3) Paste your project values below. The anon key is safe to expose when RLS is enabled.
 const SUPABASE_URL = 'https://detxiuwoyaanjmosuzsl.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_ANqgDLvZLEMsVMFO0oyA6A_zegd6Bfl';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRldHhpdXdveWFhbmptb3N1enNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MTM3NzksImV4cCI6MjA5NDM4OTc3OX0.8tPhafQ6lNOelCYlAJnSBFEmCpZ-jRm_D6IGNMN9aMM';
 const CLOUD_TABLE = 'rxmaster_user_data';
 let supabaseClient=null,currentUser=null,cloudReady=false,cloudSaveTimer=null,cloudIsLoading=false;
 
