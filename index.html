@@ -736,6 +736,70 @@ header{padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:spa
 .profile-input{flex:1;min-width:220px;padding:.68rem .75rem;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--ui-font);font-size:.86rem;outline:none}
 .profile-input:focus{border-color:var(--accent2)}
 @media(max-width:640px){.profile-grid{grid-template-columns:1fr}.profile-card{padding:.9rem;margin:.75rem 0}.profile-input{min-width:100%}}
+
+/* ══════════════════════════════════
+   QOL FEATURES: COMPACT, ACCESSIBILITY, EXPLAIN, CLINICAL, MICRO-FEEDBACK
+══════════════════════════════════ */
+body.compact-mode .app{max-width:1280px;gap:.8rem;padding:.75rem}
+body.compact-mode .sidebar{width:235px;gap:.55rem}
+body.compact-mode .panel{border-radius:9px}
+body.compact-mode .pb{padding:.55rem}
+body.compact-mode .card{padding:1.05rem 1.15rem;margin-bottom:.65rem;border-radius:10px}
+body.compact-mode .top-nav .tnav-btn{padding:.52rem .85rem;font-size:.78rem}
+body.compact-mode .mode-tabs{margin-bottom:.65rem}
+body.compact-mode .mtab{padding:4px 9px;font-size:.72rem}
+body.compact-mode .summary-controls{margin-bottom:.55rem}
+body.compact-mode .sum-table th{padding:.48rem .62rem}
+body.compact-mode .sum-table td{padding:.48rem .62rem}
+body.compact-mode .fc-face{padding:1.3rem;min-height:220px}
+body.compact-mode .flashcard,body.compact-mode .fc-inner{min-height:220px}
+body.access-readable{--ui-font:'Atkinson Hyperlegible','Nunito','Inter',sans-serif;letter-spacing:.01em}
+body.access-large-tap .btn,body.access-large-tap .mtab,body.access-large-tap .tnav-btn,body.access-large-tap .opt,body.access-large-tap .qsp,body.access-large-tap .srct,body.access-large-tap .sctrl{min-height:44px}
+body.access-large-tap .ibtn{width:42px;height:42px}
+body.access-reduce-motion *,body.access-reduce-motion *::before,body.access-reduce-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+.qol-toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}
+.qol-toggle{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.6rem .7rem;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;color:var(--text2);font-size:.8rem;cursor:pointer}
+.qol-toggle:hover{background:var(--surface3);color:var(--text)}
+.qol-toggle input{accent-color:var(--accent2)}
+.explain-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.64);z-index:740;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .18s}
+.explain-modal-overlay.open{opacity:1;pointer-events:all}
+.explain-modal{background:var(--surface);border:1px solid var(--border2);border-radius:14px;width:min(680px,96vw);max-height:88vh;overflow:auto;box-shadow:var(--shadow);padding:1.15rem}
+.explain-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;margin-bottom:.8rem}
+.explain-title{font-size:1rem;font-weight:700}
+.explain-sub{font-size:.78rem;color:var(--text3);margin-top:.15rem}
+.explain-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin:.75rem 0}
+.explain-box{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.7rem}
+.explain-label{font-size:.63rem;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);font-family:var(--mono-font);margin-bottom:.3rem}
+.explain-value{font-size:.84rem;color:var(--text2);line-height:1.5}
+.explain-pearl{padding:.75rem .85rem;background:linear-gradient(135deg,var(--a2dim),var(--adim));border:1px solid var(--border2);border-left:3px solid var(--accent2);border-radius:0 10px 10px 0;font-size:.86rem;color:var(--text);line-height:1.55}
+.explain-close{background:none;border:none;color:var(--text3);font-size:1.2rem;cursor:pointer}
+.explain-close:hover{color:var(--text)}
+.clinical-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:1.2rem;box-shadow:var(--shadow-sm);max-width:780px;margin:1rem auto}
+.clinical-kicker{font-size:.66rem;color:var(--accent2);letter-spacing:.9px;text-transform:uppercase;font-family:var(--mono-font);margin-bottom:.45rem}
+.clinical-title{font-size:1.05rem;font-weight:700;margin-bottom:.55rem}
+.clinical-stem{font-size:.92rem;color:var(--text2);line-height:1.65;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem;margin-bottom:.85rem}
+.clinical-options{display:grid;gap:.45rem;margin:.75rem 0}
+.clinical-opt{padding:.72rem .85rem;border:1px solid var(--border2);border-radius:9px;background:transparent;color:var(--text2);cursor:pointer;text-align:left;font-family:var(--ui-font);font-size:.86rem}
+.clinical-opt:hover{background:var(--surface2);color:var(--text)}
+.clinical-opt.ok{background:var(--adim);border-color:var(--accent);color:var(--accent)}
+.clinical-opt.bad{background:var(--ddim);border-color:var(--danger);color:var(--danger)}
+.clinical-explain{display:none;margin-top:.75rem;padding:.8rem .9rem;border-radius:10px;background:var(--surface2);border:1px solid var(--border);font-size:.85rem;color:var(--text2);line-height:1.55}
+.clinical-explain.show{display:block}
+.clinical-actions{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:.9rem}
+.rx-toast-wrap{position:fixed;right:1rem;bottom:1rem;z-index:900;display:flex;flex-direction:column;gap:.45rem;pointer-events:none}
+.rx-toast{background:var(--surface);border:1px solid var(--border2);box-shadow:var(--shadow);border-radius:10px;padding:.65rem .8rem;color:var(--text);font-size:.82rem;animation:toastIn .22s ease}
+.rx-toast.ok{border-color:var(--accent);color:var(--accent)}
+.rx-toast.bad{border-color:var(--danger);color:var(--danger)}
+.rx-toast.info{border-color:var(--accent2);color:var(--accent2)}
+.micro-pop{animation:microPop .22s ease}
+.micro-glow-ok{animation:glowOk .45s ease}
+.micro-glow-bad{animation:glowBad .45s ease}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes microPop{50%{transform:scale(1.025)}}
+@keyframes glowOk{0%{box-shadow:0 0 0 rgba(74,222,128,0)}50%{box-shadow:0 0 0 3px var(--adim)}100%{box-shadow:var(--shadow-sm)}}
+@keyframes glowBad{0%{box-shadow:0 0 0 rgba(248,113,113,0)}50%{box-shadow:0 0 0 3px var(--ddim)}100%{box-shadow:var(--shadow-sm)}}
+@media(max-width:640px){.qol-toggle-grid{grid-template-columns:1fr}.explain-grid{grid-template-columns:1fr}.clinical-card{padding:.95rem;margin:.75rem 0}.rx-toast-wrap{left:.75rem;right:.75rem;bottom:4.8rem}}
+
 </style>
 </head>
 <body>
@@ -902,6 +966,7 @@ header{padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:spa
       <button class="tnav-btn" onclick="switchTab('summary',this)">📋 Summary</button>
       <button class="tnav-btn" onclick="switchTab('flashcard',this)">🃏 Flashcards</button>
       <button class="tnav-btn" onclick="switchTab('custom',this)">➕ Custom Drugs</button>
+      <button class="tnav-btn" onclick="switchTab('clinical',this)">🩺 Clinical</button>
       <button class="tnav-btn" onclick="switchTab('profile',this)">👤 Profile</button>
     </div>
 
@@ -1036,6 +1101,7 @@ header{padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:spa
           <button class="btn" id="next-btn" style="display:none" onclick="nextCard()">Next → <span class="kbd">→</span></button>
           <button class="btn btn-s" onclick="skipCard()">Skip</button>
           <button class="hint-btn" id="hint-btn" onclick="revealHintLetter()" title="Reveal a random letter (H)">💡 Hint <span class="hint-uses" id="hint-uses-left"></span></button>
+          <button class="btn btn-s" onclick="rxExplainCurrentDrug()">✨ Explain</button>
         </div>
         <div class="hint-row"><span class="kbd">Enter</span> check · <span class="kbd">→</span> next · <span class="kbd">H</span> hint</div>
       </div>
@@ -1199,6 +1265,23 @@ header{padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:spa
       <div class="custom-drug-list" id="custom-drug-list"></div>
       <div class="cd-empty" id="custom-drug-empty" style="display:none">No custom drugs yet. Add one above and it will appear throughout the app.</div>
     </div><!-- end tab-custom -->
+
+
+
+    <!-- ═══ CLINICAL SCENARIOS TAB ═══ -->
+    <div class="tab-section" id="tab-clinical">
+      <div class="clinical-card">
+        <div class="clinical-kicker">Clinical Scenario Mode</div>
+        <div class="clinical-title">Apply the drug facts in patient-style questions</div>
+        <div class="clinical-stem" id="clinical-stem">Click “New Scenario” to start.</div>
+        <div class="clinical-options" id="clinical-options"></div>
+        <div class="clinical-explain" id="clinical-explain"></div>
+        <div class="clinical-actions">
+          <button class="btn btn-p" onclick="rxNewClinicalScenario()">New Scenario</button>
+          <button class="btn" onclick="rxExplainClinicalAnswer()">Explain Answer</button>
+        </div>
+      </div>
+    </div><!-- end tab-clinical -->
 
 
     <div class="tab-section" id="tab-profile">
@@ -4301,6 +4384,28 @@ self.addEventListener('fetch', e => {
 
 
 <!-- MOBILE BOTTOM NAV -->
+
+<!-- EXPLAIN MODAL -->
+<div class="explain-modal-overlay" id="rx-explain-modal" onclick="rxCloseExplain(event)">
+  <div class="explain-modal">
+    <div class="explain-head">
+      <div>
+        <div class="explain-title" id="rx-explain-title">Explain</div>
+        <div class="explain-sub" id="rx-explain-sub">High-yield breakdown</div>
+      </div>
+      <button class="explain-close" onclick="document.getElementById('rx-explain-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="explain-pearl" id="rx-explain-pearl">Select a drug to explain.</div>
+    <div class="explain-grid">
+      <div class="explain-box"><div class="explain-label">Class</div><div class="explain-value" id="rx-explain-class">—</div></div>
+      <div class="explain-box"><div class="explain-label">Indication</div><div class="explain-value" id="rx-explain-ind">—</div></div>
+      <div class="explain-box"><div class="explain-label">Contraindications</div><div class="explain-value" id="rx-explain-ci">—</div></div>
+      <div class="explain-box"><div class="explain-label">Memory Hook</div><div class="explain-value" id="rx-explain-hook">—</div></div>
+    </div>
+  </div>
+</div>
+<div class="rx-toast-wrap" id="rx-toast-wrap"></div>
+
 <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
   <div class="mobile-nav-inner">
     <button class="mnav-btn active" id="mnav-study" onclick="mnavGo('study',this)">
@@ -4360,6 +4465,23 @@ self.addEventListener('fetch', e => {
         <button class="scale-btn" onclick="resetScale()" style="font-size:.7rem;width:auto;padding:0 8px">Reset</button>
       </div>
     </div>
+
+    <div class="ap-section">
+      <div class="ap-section-title">Study Layout</div>
+      <div class="qol-toggle-grid">
+        <label class="qol-toggle"><span>Compact mode</span><input type="checkbox" id="qol-compact" onchange="rxToggleQolSetting('compact',this.checked)"></label>
+        <label class="qol-toggle"><span>Large tap targets</span><input type="checkbox" id="qol-large-tap" onchange="rxToggleQolSetting('largeTap',this.checked)"></label>
+      </div>
+    </div>
+
+    <div class="ap-section">
+      <div class="ap-section-title">Accessibility</div>
+      <div class="qol-toggle-grid">
+        <label class="qol-toggle"><span>Readable font</span><input type="checkbox" id="qol-readable" onchange="rxToggleQolSetting('readable',this.checked)"></label>
+        <label class="qol-toggle"><span>Reduce motion</span><input type="checkbox" id="qol-reduce-motion" onchange="rxToggleQolSetting('reduceMotion',this.checked)"></label>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -4494,5 +4616,202 @@ self.addEventListener('fetch', e => {
   });
 })();
 </script>
+
+<script>
+/* RxMaster QOL Features: compact, accessibility, explain, clinical scenarios, micro-feedback */
+(function(){
+  const LS_QOL = 'rxmaster_qol_settings_v1';
+  const defaultQol = { compact:false, largeTap:false, readable:false, reduceMotion:false };
+  let clinicalState = { drug:null, answer:null, answered:false };
+
+  function getQol(){
+    try{return Object.assign({}, defaultQol, JSON.parse(localStorage.getItem(LS_QOL) || '{}'));}
+    catch(e){return Object.assign({}, defaultQol);}
+  }
+  function saveQol(settings){ localStorage.setItem(LS_QOL, JSON.stringify(settings)); }
+
+  function applyQol(){
+    const s = getQol();
+    document.body.classList.toggle('compact-mode', !!s.compact);
+    document.body.classList.toggle('access-large-tap', !!s.largeTap);
+    document.body.classList.toggle('access-readable', !!s.readable);
+    document.body.classList.toggle('access-reduce-motion', !!s.reduceMotion);
+    [['qol-compact',s.compact],['qol-large-tap',s.largeTap],['qol-readable',s.readable],['qol-reduce-motion',s.reduceMotion]].forEach(function(pair){
+      const el=document.getElementById(pair[0]); if(el) el.checked=!!pair[1];
+    });
+  }
+
+  window.rxToggleQolSetting = function(key, value){
+    const s = getQol(); s[key] = !!value; saveQol(s); applyQol();
+    rxToast(key === 'compact' ? 'Compact mode updated' : 'Accessibility setting updated', 'info');
+  };
+
+  window.rxToast = function(message, type){
+    const wrap = document.getElementById('rx-toast-wrap');
+    if(!wrap || !message) return;
+    const div = document.createElement('div');
+    div.className = 'rx-toast ' + (type || 'info');
+    div.textContent = message;
+    wrap.appendChild(div);
+    setTimeout(function(){
+      div.style.opacity = '0';
+      div.style.transform = 'translateY(8px)';
+      setTimeout(function(){ div.remove(); }, 220);
+    }, 1800);
+  };
+
+  function allDrugsSafe(){
+    try{ if(typeof DRUGS !== 'undefined' && Array.isArray(DRUGS)) return DRUGS; }catch(e){}
+    return [];
+  }
+
+  function getCurrentDrugSafe(){
+    try{ if(typeof drug !== 'undefined' && drug) return drug; }catch(e){}
+    if(window.rxCurrentExplainDrug) return window.rxCurrentExplainDrug;
+    const drugs = allDrugsSafe();
+    return drugs.length ? drugs[0] : null;
+  }
+
+  function explainTextFor(d){
+    if(!d) return 'No drug selected yet.';
+    const ci = d.ci || 'No specific contraindications listed in this deck.';
+    const hook = d.hook || '';
+    return `${d.brand} (${d.generic}) is best remembered as a ${d.cls || 'listed class'}. The core use in this deck is ${d.ind || 'the listed indication'}. Connect the class to the indication first, then lock in the caution pattern: ${ci}${hook ? ' Memory hook: ' + hook : ''}`;
+  }
+
+  window.rxExplainDrug = function(d){
+    d = d || getCurrentDrugSafe();
+    if(!d){ rxToast('No drug available to explain yet.', 'bad'); return; }
+    window.rxCurrentExplainDrug = d;
+    const setText = function(id, val){ const el=document.getElementById(id); if(el) el.textContent = val || '—'; };
+    setText('rx-explain-title', `${d.brand} (${d.generic})`);
+    setText('rx-explain-sub', 'High-yield explanation based on your RxMaster drug data');
+    setText('rx-explain-pearl', explainTextFor(d));
+    setText('rx-explain-class', d.cls);
+    setText('rx-explain-ind', d.ind);
+    setText('rx-explain-ci', d.ci);
+    setText('rx-explain-hook', d.hook);
+    const modal = document.getElementById('rx-explain-modal');
+    if(modal) modal.classList.add('open');
+  };
+  window.rxExplainCurrentDrug = function(){ rxExplainDrug(getCurrentDrugSafe()); };
+  window.rxCloseExplain = function(e){ if(e && e.target && e.target.id === 'rx-explain-modal') e.target.classList.remove('open'); };
+
+  function shuffle(arr){ return arr.map(function(v){return [Math.random(), v];}).sort(function(a,b){return a[0]-b[0];}).map(function(x){return x[1];}); }
+  function scenarioAnswer(d, type){
+    if(type === 'contra') return d.ci || 'No specific contraindication listed';
+    if(type === 'class') return d.cls || 'Unknown class';
+    return d.ind || 'Unknown indication';
+  }
+  function scenarioStem(d, type){
+    if(type === 'contra') return `A patient is being reviewed before treatment. Their medication list includes ${d.generic}. Which contraindication or caution should you connect with ${d.brand}?`;
+    if(type === 'class') return `A patient is prescribed ${d.brand}. Which class best matches this medication?`;
+    return `A patient asks why they were prescribed ${d.brand} (${d.generic}). Which listed indication best matches this medication?`;
+  }
+  function wrongPool(type, answer){
+    const field = type === 'contra' ? 'ci' : (type === 'class' ? 'cls' : 'ind');
+    const values = [];
+    allDrugsSafe().forEach(function(x){
+      const val = x[field];
+      if(val && val !== answer && values.indexOf(val) === -1) values.push(val);
+    });
+    return shuffle(values).slice(0,3);
+  }
+
+  window.rxNewClinicalScenario = function(){
+    const drugs = allDrugsSafe();
+    const stemEl = document.getElementById('clinical-stem');
+    const optsEl = document.getElementById('clinical-options');
+    const expEl = document.getElementById('clinical-explain');
+    if(!stemEl || !optsEl || !drugs.length){ rxToast('Clinical scenario could not load drug data.', 'bad'); return; }
+    const d = drugs[Math.floor(Math.random()*drugs.length)];
+    const type = shuffle(['ind','class','contra'])[0];
+    const answer = scenarioAnswer(d, type);
+    const opts = shuffle([answer].concat(wrongPool(type, answer))).slice(0,4);
+    clinicalState = { drug:d, type:type, answer:answer, answered:false };
+    stemEl.textContent = scenarioStem(d, type);
+    optsEl.innerHTML = '';
+    opts.forEach(function(opt){
+      const btn = document.createElement('button');
+      btn.className = 'clinical-opt';
+      btn.textContent = opt;
+      btn.onclick = function(){ rxAnswerClinical(btn, opt); };
+      optsEl.appendChild(btn);
+    });
+    if(expEl){ expEl.className = 'clinical-explain'; expEl.textContent = ''; }
+  };
+
+  window.rxAnswerClinical = function(btn, opt){
+    if(!clinicalState || !clinicalState.drug) return;
+    const ok = opt === clinicalState.answer;
+    document.querySelectorAll('.clinical-opt').forEach(function(b){
+      b.disabled = true;
+      if(b.textContent === clinicalState.answer) b.classList.add('ok');
+    });
+    if(!ok && btn) btn.classList.add('bad');
+    clinicalState.answered = true;
+    rxToast(ok ? 'Correct clinical reasoning' : 'Review the explanation', ok ? 'ok' : 'bad');
+    const card = document.querySelector('#tab-clinical .clinical-card');
+    if(card){
+      card.classList.add(ok ? 'micro-glow-ok' : 'micro-glow-bad');
+      setTimeout(function(){ card.classList.remove('micro-glow-ok','micro-glow-bad'); }, 520);
+    }
+    rxExplainClinicalAnswer();
+  };
+
+  window.rxExplainClinicalAnswer = function(){
+    const expEl = document.getElementById('clinical-explain');
+    if(!expEl || !clinicalState || !clinicalState.drug){ rxToast('Start a clinical scenario first.', 'info'); return; }
+    const d = clinicalState.drug;
+    expEl.className = 'clinical-explain show';
+    expEl.innerHTML = `<strong>${d.brand} (${d.generic})</strong><br>${explainTextFor(d)}`;
+  };
+
+  const oldSwitchTab = window.switchTab;
+  if(typeof oldSwitchTab === 'function' && !oldSwitchTab.__qolWrapped){
+    window.switchTab = function(tab, btn){
+      oldSwitchTab.call(this, tab, btn);
+      if(tab === 'clinical' && (!clinicalState || !clinicalState.drug)) setTimeout(window.rxNewClinicalScenario, 30);
+    };
+    window.switchTab.__qolWrapped = true;
+  }
+
+  const oldMnavGo = window.mnavGo;
+  if(typeof oldMnavGo === 'function' && !oldMnavGo.__qolWrapped){
+    window.mnavGo = function(tab, btn){
+      oldMnavGo.call(this, tab, btn);
+      if(tab === 'clinical' && (!clinicalState || !clinicalState.drug)) setTimeout(window.rxNewClinicalScenario, 30);
+    };
+    window.mnavGo.__qolWrapped = true;
+  }
+
+  const oldOpenDrugInfo = window.openDrugInfo;
+  if(typeof oldOpenDrugInfo === 'function' && !oldOpenDrugInfo.__qolWrapped){
+    window.openDrugInfo = function(d){
+      window.rxCurrentExplainDrug = d;
+      return oldOpenDrugInfo.apply(this, arguments);
+    };
+    window.openDrugInfo.__qolWrapped = true;
+  }
+
+  const oldFinishCheck = window.finishCheck;
+  if(typeof oldFinishCheck === 'function' && !oldFinishCheck.__qolWrapped){
+    window.finishCheck = function(ok, timeout){
+      const result = oldFinishCheck.apply(this, arguments);
+      const card = document.getElementById('main-card');
+      if(card){
+        card.classList.add(ok ? 'micro-glow-ok' : 'micro-glow-bad');
+        setTimeout(function(){ card.classList.remove('micro-glow-ok','micro-glow-bad'); }, 520);
+      }
+      rxToast(ok ? 'Nice. Correct.' : (timeout ? 'Time is up.' : 'Missed. Review it.'), ok ? 'ok' : 'bad');
+      return result;
+    };
+    window.finishCheck.__qolWrapped = true;
+  }
+
+  document.addEventListener('DOMContentLoaded', applyQol);
+})();
+</script>
+
 </body>
 </html>
